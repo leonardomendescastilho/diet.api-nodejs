@@ -10,7 +10,6 @@ export async function checkSessionId(
 		reply.status(401).send({
 			message: 'Unauthorized.',
 		});
-
 		throw new Error('Unauthorized.');
 	}
 }
