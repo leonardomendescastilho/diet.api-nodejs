@@ -1,8 +1,7 @@
 import { FastifyInstance, FastifyRequest } from 'fastify';
 import knex from '../database';
-import { unknown, z } from 'zod';
 import { randomUUID } from 'node:crypto';
-// import { checkSessionId } from '../middlewares/checking-session';
+import { checkSessionId } from '../middlewares/checking-session';
 import { createUserSchema } from '../validations/users-validations';
 
 export async function usersRoute(app: FastifyInstance) {
@@ -20,23 +19,63 @@ export async function usersRoute(app: FastifyInstance) {
 
 		const { name, email } = createUserSchema.parse(request.body);
 
-		const userExists = await knex('users').where({ email }).first();
+		const userExists = await knex('users').where({ session_id }).first();
 
 		if (userExists) {
 			reply.status(409).send({
 				message: 'User already exists.',
 			});
-		} else {
+			return;
+		}
+
+		try {
 			await knex('users').insert({
 				id: randomUUID(),
 				name,
 				email,
 				session_id,
 			});
+		} catch (error) {
+			throw new Error('User not created.', { cause: error });
+		}
 
-			reply.status(201).send({
-				message: 'User created.',
+		reply.status(201).send({
+			message: 'User created.',
+		});
+	});
+
+	app.put(
+		'/',
+		{
+			preHandler: [checkSessionId],
+		},
+		async (request, reply) => {
+			const { session_id } = request.cookies;
+
+			const userSessionExist = await knex('users')
+				.where('session_id', session_id)
+				.first();
+
+			if (!userSessionExist) {
+				return;
+			}
+
+			const { name, email } = createUserSchema.parse(request.body);
+
+			try {
+				await knex('users')
+					.where('session_id', session_id)
+					.update({
+						name: name || userSessionExist?.name,
+						email: email || userSessionExist?.email,
+					});
+			} catch (error) {
+				throw new Error('User not updated.', { cause: error });
+			}
+
+			reply.status(200).send({
+				message: 'User updated.',
 			});
 		}
-	});
+	);
 }
