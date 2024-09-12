@@ -1,6 +1,6 @@
 # Requisito funcional
 
-[ ] Deve ser possível criar um usuário
+[x] Deve ser possível criar um usuário
 [ ] Deve ser possível visualizar uma única refeição
 [ ] Deve ser possível editar uma refeição, podendo alterar todos os dados acima
 [ ] Deve ser possível apagar uma refeição
@@ -18,7 +18,7 @@
 - Quantidade total de refeições fora da dieta
 - Melhor sequência de refeições dentro da dieta
 
-[ ] Deve ser possível registrar uma refeição feita, com as seguintes informações:
+[x] Deve ser possível registrar uma refeição feita, com as seguintes informações:
 _As refeições devem ser relacionadas a um usuário._
 
 - Nome
