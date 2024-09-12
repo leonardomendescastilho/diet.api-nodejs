@@ -43,4 +43,24 @@ export async function mealsRoute(app: FastifyInstance) {
 			});
 		}
 	);
+
+	app.get(
+		'/',
+		{
+			preHandler: [checkSessionId],
+		},
+		async (request, reply) => {
+			const { session_id } = request.cookies;
+
+			try {
+				const result = await knex('meals')
+					.where('session_id', session_id)
+					.select('*');
+
+				reply.status(200).send(result);
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	);
 }
