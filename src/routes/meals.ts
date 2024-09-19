@@ -87,7 +87,7 @@ export async function mealsRoute(app: FastifyInstance) {
 				});
 				return;
 			}
-			
+
 			try {
 				const resultedMeal = await knex('meals')
 					.select('*')
@@ -96,6 +96,51 @@ export async function mealsRoute(app: FastifyInstance) {
 					.first();
 
 				return reply.status(200).send(resultedMeal);
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	);
+
+	app.put(
+		'/meal/:id',
+		{ preHandler: [checkSessionId] },
+		async (request: any, reply) => {
+			const { session_id } = request.cookies;
+			const { id } = request.params;
+
+			const { name, description, diet } = updateMealsSchema.parse(request.body);
+
+			try {
+				const currentMeal = await knex('meals')
+					.select('*')
+					.where('session_id', session_id)
+					.andWhere('id', id);
+
+				console.log(currentMeal[0]);
+
+				if (currentMeal.length === 0) {
+					reply.status(404).send({
+						message: 'Meal not found.',
+					});
+					return;
+				}
+
+				const newMeal = {
+					...currentMeal[0],
+					name: name ?? currentMeal[0].name,
+					description: description ?? currentMeal[0].description,
+					diet: diet ?? currentMeal[0].diet,
+				};
+
+				await knex('meals')
+					.update(newMeal)
+					.where('session_id', session_id)
+					.andWhere('id', id);
+
+				reply.status(200).send({
+					message: 'Meal updated.',
+				});
 			} catch (error) {
 				console.error(error);
 			}
