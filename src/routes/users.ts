@@ -1,4 +1,4 @@
-import { FastifyInstance, FastifyRequest } from 'fastify';
+import { FastifyInstance } from 'fastify';
 import knex from '../database';
 import { randomUUID } from 'node:crypto';
 import { checkSessionId } from '../middlewares/checking-session';
