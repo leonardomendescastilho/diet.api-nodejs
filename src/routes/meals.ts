@@ -2,7 +2,10 @@ import { FastifyInstance } from 'fastify';
 import knex from '../database';
 import { randomUUID } from 'node:crypto';
 import { checkSessionId } from '../middlewares/checking-session';
-import { createMealsSchema } from '../validations/meals-validation';
+import {
+	createMealsSchema,
+	updateMealsSchema,
+} from '../validations/meals-validation';
 
 export async function mealsRoute(app: FastifyInstance) {
 	app.post(
@@ -82,18 +85,19 @@ export async function mealsRoute(app: FastifyInstance) {
 				reply.status(400).send({
 					message: 'Meal not found. Need an id parameter to search.',
 				});
-			} else {
-				try {
-					const resultedMeal = await knex('meals')
-						.select('*')
-						.where('session_id', session_id)
-						.andWhere('id', id)
-						.first();
+				return;
+			}
+			
+			try {
+				const resultedMeal = await knex('meals')
+					.select('*')
+					.where('session_id', session_id)
+					.andWhere('id', id)
+					.first();
 
-					return reply.status(200).send(resultedMeal);
-				} catch (error) {
-					console.error(error);
-				}
+				return reply.status(200).send(resultedMeal);
+			} catch (error) {
+				console.error(error);
 			}
 		}
 	);
