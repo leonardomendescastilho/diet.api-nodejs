@@ -31,6 +31,13 @@ export async function mealsRoute(app: FastifyInstance) {
 
 			const result = createMealsSchema.parse(meals);
 
+			if (!result) {
+				reply.status(400).send({
+					message: 'Invalid meal data.',
+				});
+				return;
+			}
+
 			try {
 				await knex('meals').insert(result);
 			} catch (error) {
@@ -64,7 +71,7 @@ export async function mealsRoute(app: FastifyInstance) {
 	);
 
 	app.get(
-		'/item/:id',
+		'/meal/:id',
 		{ preHandler: [checkSessionId] },
 		async (request: any, reply) => {
 			const { session_id } = request.cookies;
