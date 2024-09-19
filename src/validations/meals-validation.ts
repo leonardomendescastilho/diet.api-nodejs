@@ -8,3 +8,9 @@ export const createMealsSchema = z.object({
 	diet: z.boolean(),
 	session_id: z.string(),
 });
+
+export const updateMealsSchema = z.object({
+	name: z.string(),
+	description: z.string(),
+	diet: z.boolean(),
+});
