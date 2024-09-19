@@ -3,7 +3,6 @@ import knex from '../database';
 import { randomUUID } from 'node:crypto';
 import { checkSessionId } from '../middlewares/checking-session';
 import { createMealsSchema } from '../validations/meals-validation';
-import { resourceUsage } from 'node:process';
 
 export async function mealsRoute(app: FastifyInstance) {
 	app.post(
@@ -60,6 +59,34 @@ export async function mealsRoute(app: FastifyInstance) {
 				reply.status(200).send(result);
 			} catch (error) {
 				console.error(error);
+			}
+		}
+	);
+
+	app.get(
+		'/item/:id',
+		{ preHandler: [checkSessionId] },
+		async (request: any, reply) => {
+			const { session_id } = request.cookies;
+
+			const { id } = request.params;
+
+			if (!id) {
+				reply.status(400).send({
+					message: 'Meal not found. Need an id parameter to search.',
+				});
+			} else {
+				try {
+					const resultedMeal = await knex('meals')
+						.select('*')
+						.where('session_id', session_id)
+						.andWhere('id', id)
+						.first();
+
+					return reply.status(200).send(resultedMeal);
+				} catch (error) {
+					console.error(error);
+				}
 			}
 		}
 	);
