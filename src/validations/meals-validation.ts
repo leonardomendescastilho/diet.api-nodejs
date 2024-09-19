@@ -10,7 +10,7 @@ export const createMealsSchema = z.object({
 });
 
 export const updateMealsSchema = z.object({
-	name: z.string(),
-	description: z.string(),
-	diet: z.boolean(),
+  name: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  diet: z.boolean().optional().nullable(),
 });
