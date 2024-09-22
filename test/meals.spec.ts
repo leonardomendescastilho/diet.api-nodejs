@@ -31,4 +31,28 @@ describe('Meals routes', () => {
 			})
 			.expect(201);
 	});
+
+	it('should be to delete a meal', async () => {
+		await supertest(app.server)
+			.post('/meals')
+			.set('Cookie', 'session_id=123')
+			.send({
+				name: 'café com pão com ovo',
+				description: 'café comum brasileiro',
+				diet: true,
+			})
+			.expect(201);
+
+		const result = await supertest(app.server)
+			.get('/meals')
+			.set('Cookie', 'session_id=123');
+
+		const { id } = result.body[0];
+
+		console.log(id);
+		await supertest(app.server)
+			.delete(`/meals/meal/${id}`)
+			.set('Cookie', 'session_id=123')
+			.expect(204);
+	});
 });
