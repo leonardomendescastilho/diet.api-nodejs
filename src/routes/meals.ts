@@ -14,15 +14,6 @@ export async function mealsRoute(app: FastifyInstance) {
 		async (request: any, reply) => {
 			const { session_id } = request.cookies;
 
-			try {
-				await knex('users').where('session_id', session_id).first();
-			} catch (error) {
-				console.error(error);
-				return reply.status(401).send({
-					message: 'Unauthorized',
-				});
-			}
-
 			const meals = {
 				id: randomUUID(),
 				name: request.body.name,
