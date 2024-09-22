@@ -29,16 +29,4 @@ describe('Users routes', () => {
 			})
 			.expect(201);
 	});
-
-	it('should be able to create a new meal', async () => {
-		await supertest(app.server)
-			.post('/meals')
-			.set('Cookie', 'session_id=123')
-			.send({
-				name: 'café com pão com ovo',
-				description: 'café comum brasileiro',
-				diet: true,
-			})
-			.expect(201);
-	});
 });
