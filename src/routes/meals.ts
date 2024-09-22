@@ -176,4 +176,42 @@ export async function mealsRoute(app: FastifyInstance) {
 			}
 		}
 	);
+
+	app.get(
+		'/diet/1',
+		{
+			preHandler: [checkSessionId],
+		},
+		async (request, reply) => {
+			const { session_id } = request.cookies;
+
+			try {
+				const mealsOnDiet = await knex('meals')
+					.where('session_id', session_id)
+					.andWhere('diet', true)
+					.count('* as on_diet');
+				reply.status(200).send(mealsOnDiet);
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	);
+
+	app.get(
+		'/diet/0',
+		{ preHandler: [checkSessionId] },
+		async (request, reply) => {
+			const { session_id } = request.cookies;
+
+			try {
+				const mealsOffDiet = await knex('meals')
+					.where('session_id', session_id)
+					.andWhere('diet', false)
+					.count('* as off_diet');
+				reply.status(200).send(mealsOffDiet);
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	);
 }
