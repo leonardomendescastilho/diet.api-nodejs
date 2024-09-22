@@ -159,7 +159,7 @@ export async function mealsRoute(app: FastifyInstance) {
 					.where('session_id', session_id)
 					.andWhere('id', id)
 					.del();
-				reply.status(200).send({
+				reply.status(204).send({
 					message: 'Meal deleted.',
 				});
 			} catch (error) {
