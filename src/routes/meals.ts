@@ -146,4 +146,34 @@ export async function mealsRoute(app: FastifyInstance) {
 			}
 		}
 	);
+
+	app.delete(
+		'/meal/:id',
+		{
+			preHandler: [checkSessionId],
+		},
+		async (request: any, reply) => {
+			const { session_id } = request.cookies;
+			const { id } = request.params;
+
+			if (!id) {
+				reply.status(400).send({
+					message: 'Meal not found. Need an id parameter to search.',
+				});
+				return;
+			}
+
+			try {
+				await knex('meals')
+					.where('session_id', session_id)
+					.andWhere('id', id)
+					.del();
+				reply.status(200).send({
+					message: 'Meal deleted.',
+				});
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	);
 }
