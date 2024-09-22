@@ -178,7 +178,7 @@ export async function mealsRoute(app: FastifyInstance) {
 	);
 
 	app.get(
-		'/diet/1',
+		'/diet',
 		{
 			preHandler: [checkSessionId],
 		},
@@ -190,25 +190,41 @@ export async function mealsRoute(app: FastifyInstance) {
 					.where('session_id', session_id)
 					.andWhere('diet', true)
 					.count('* as on_diet');
-				reply.status(200).send(mealsOnDiet);
-			} catch (error) {
-				console.error(error);
-			}
-		}
-	);
 
-	app.get(
-		'/diet/0',
-		{ preHandler: [checkSessionId] },
-		async (request, reply) => {
-			const { session_id } = request.cookies;
-
-			try {
 				const mealsOffDiet = await knex('meals')
 					.where('session_id', session_id)
 					.andWhere('diet', false)
 					.count('* as off_diet');
-				reply.status(200).send(mealsOffDiet);
+
+				const allMeals = await knex('meals')
+					.where('session_id', session_id)
+					.count('* as total');
+
+				const orderedMealsByData = await knex('meals')
+					.where('session_id', session_id)
+					.orderBy('created_at', 'desc')
+					.select('diet');
+
+				let maxStreak = 0;
+				let currentStreak = 0;
+
+				orderedMealsByData.forEach((meal) => {
+					if (meal.diet) {
+						currentStreak++;
+					} else {
+						if (currentStreak > maxStreak) {
+							maxStreak = currentStreak;
+						}
+						currentStreak = 0;
+					}
+				});
+
+				reply.status(200).send({
+					registeredMeals: Number(allMeals[0].total),
+					onDiet: Number(mealsOnDiet[0].on_diet),
+					offDiet: Number(mealsOffDiet[0].off_diet),
+					maxStreakOnDiet: maxStreak,
+				});
 			} catch (error) {
 				console.error(error);
 			}
